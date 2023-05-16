@@ -22,7 +22,9 @@ def find_and_copy_snapshots(args, path):
         versions[version] = content
     for version, content in versions.items():
         stem = "index" if version == "latest" else f"{path.stem}_{version}"
-        snapshot_path = args.snapshots_dir / path.stem / f"{stem}.qmd"
+        snapshot_path = args.snapshots_dir / path.relative_to(
+            args.quarto_project
+        ).with_suffix("") / f"{stem}.qmd"
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"Generating {snapshot_path}...")
         modified_content = frontmatter.loads(content)
@@ -35,6 +37,7 @@ def generate(args):
     args.quarto_project = pathlib.Path(args.quarto_project)
     args.snapshots_dir = args.quarto_project / args.snapshots_subdir
     for notebook in args.quarto_project.rglob("*.*md"):
+
         find_and_copy_snapshots(args, notebook)
 
 def get_parser():
