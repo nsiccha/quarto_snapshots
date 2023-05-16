@@ -20,7 +20,7 @@ def find_and_copy_snapshots(args, path):
     for content in contents: 
         version = frontmatter.loads(content).get("version", "unversioned")
         versions[version] = content
-    if not args.keep_unversioned: del versions["unversioned"] 
+    if not args.keep_unversioned: versions.pop("unversioned", None) 
     for version, content in versions.items():
         stem = "index" if version == "latest" else f"{path.stem}_{version}"
         rel_path = path.relative_to(args.quarto_project).with_suffix("")
