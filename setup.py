@@ -33,7 +33,7 @@ setup(
     description="Extracts versioned quarto notebook snapshots from the git commit history.",
     entry_points={
         'console_scripts': [
-            'quarto_snapshots=quarto_snapshots.cli:main',
+            'quarto_snapshots=quarto_snapshots:main',
         ],
     },
     install_requires=requirements,

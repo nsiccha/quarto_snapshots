@@ -62,3 +62,5 @@ def handle_args(args):
     if args.publish: print_and_system("quarto publish gh-pages quarto --no-prompt --no-browser")
     if args.hello_world: print("Hello quarto!")
     return 0
+
+def main(): return handle_args(get_parser().parse_args())
