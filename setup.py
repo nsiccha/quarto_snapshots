@@ -32,9 +32,9 @@ setup(
     ],
     description="Extracts versioned quarto notebook snapshots from the git commit history.",
     entry_points={
-        # 'console_scripts': [
-        #     'quarto_snapshots=quarto_snapshots.cli:main',
-        # ],
+        'console_scripts': [
+            'quarto_snapshots=quarto_snapshots.cli:main',
+        ],
     },
     install_requires=requirements,
     license="MIT license",
