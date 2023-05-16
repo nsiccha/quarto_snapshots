@@ -20,6 +20,7 @@ def find_and_copy_snapshots(args, path):
     for content in contents: 
         version = frontmatter.loads(content).get("version", "unversioned")
         versions[version] = content
+    if not args.keep_unversioned: del versions["unversioned"] 
     for version, content in versions.items():
         stem = "index" if version == "latest" else f"{path.stem}_{version}"
         rel_path = path.relative_to(args.quarto_project).with_suffix("")
@@ -56,6 +57,7 @@ def get_parser():
     parser.add_argument('--git-root', default=".")
     parser.add_argument('-q', '--quarto-project', default="quarto")
     parser.add_argument('-s', '--snapshots-subdir', default="snapshots")
+    parser.add_argument('-k', '--keep-unversioned', default=False, action='store_true')
     return parser
 
 
