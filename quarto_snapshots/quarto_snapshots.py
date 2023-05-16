@@ -18,7 +18,7 @@ def find_and_copy_snapshots(args, repo, snapshots_dir, path):
         for commit in reversed(commits)
     ] + [current_content]
     for content in contents: 
-        version = re.findall("version:\s*(.+)", content)[0]
+        version = frontmatter.loads(content).get("version", "unversioned")
         versions[version] = content
     for version, content in versions.items():
         snapshot_path = snapshots_dir / path.stem / f"{path.stem}_{version}.qmd"
