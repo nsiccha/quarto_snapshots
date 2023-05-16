@@ -48,6 +48,7 @@ def get_parser():
         prog = "main", # Somebody come up with a good name
         description = "Runs and renders experiments",
     )
+    parser.add_argument('-j', '--initialize-julia', default=False, action='store_true')
     parser.add_argument('-c', '--commit', default=False, action='store_true')
     parser.add_argument('-m', '--commit-message', default="autocommit")
     parser.add_argument('-g', '--generate', default=False, action='store_true')
@@ -64,6 +65,9 @@ def get_parser():
 def handle_args(args):
     print(args)
 
+    if args.initialize_julia:
+        julia_cmd = "using Pkg; Pkg.instantiate();"
+        print_and_system(f"julia --project=. -e {shlex.quote(julia_cmd)}")
     if args.commit:
         print_and_system("git add .")
         print_and_system("git status")
