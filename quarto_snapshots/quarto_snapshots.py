@@ -36,9 +36,11 @@ def generate(args):
     args.repo = git.Repo(args.git_root)
     args.quarto_project = pathlib.Path(args.quarto_project)
     args.snapshots_dir = args.quarto_project / args.snapshots_subdir
-    for notebook in args.quarto_project.rglob("*.*md"):
-
-        find_and_copy_snapshots(args, notebook)
+    for path in args.quarto_project.rglob("*.*md"):
+        try:
+            path.relative_to(args.snapshots_dir)
+        except:
+            find_and_copy_snapshots(args, path)
 
 def get_parser():
     parser = argparse.ArgumentParser(
