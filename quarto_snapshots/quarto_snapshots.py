@@ -26,7 +26,8 @@ def find_and_copy_snapshots(args, path):
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"Generating {snapshot_path}...")
         modified_content = frontmatter.loads(content)
-        modified_content["title"] += f" ({version})"
+        modified_title = modified_content.get("title", path.stem) + f" ({version})"
+        modified_content["title"] = modified_title
         frontmatter.dump(modified_content, snapshot_path)
 
 def generate(args):
