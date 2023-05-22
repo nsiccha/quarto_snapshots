@@ -31,7 +31,9 @@ def find_and_copy_snapshots(args, path):
         modified_content = frontmatter.loads(content)
         modified_title = modified_content.get("title", path.stem)
         if version != "latest": modified_title += f" ({version})"
+        if path == args.quarto_project / "index.md": modified_title = "SNAPSHOTS"
         modified_content["title"] = modified_title
+        modified_content["order"] = 10 + modified_content.get("order", 0)
         frontmatter.dump(modified_content, snapshot_path)
 
 def generate(args):
