@@ -23,17 +23,19 @@ def find_and_copy_snapshots(args, path):
     if not args.keep_unversioned: versions.pop("unversioned", None) 
     for version, content in versions.items():
         stem = "index" if version == "latest" else f"{path.stem}_{version}"
+        suffix = path.suffix
         rel_path = path.relative_to(args.quarto_project).with_suffix("")
         if path.stem == "index": rel_path = rel_path.parent
-        snapshot_path = args.snapshots_dir / rel_path / f"{stem}.qmd"
+        snapshot_path = args.snapshots_dir / rel_path / f"{stem}{suffix}"
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"Generating {snapshot_path}...")
         modified_content = frontmatter.loads(content)
         modified_title = modified_content.get("title", path.stem)
         if version != "latest": modified_title += f" ({version})"
-        if path == args.quarto_project / "index.md": modified_title = "SNAPSHOTS"
+        if path == args.quarto_project / f"index{suffix}": 
+            modified_title = "SNAPSHOTS"
+            modified_content["order"] = 10 + modified_content.get("order", 0)
         modified_content["title"] = modified_title
-        modified_content["order"] = 10 + modified_content.get("order", 0)
         frontmatter.dump(modified_content, snapshot_path)
 
 def generate(args):
