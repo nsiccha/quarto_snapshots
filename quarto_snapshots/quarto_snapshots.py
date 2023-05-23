@@ -17,7 +17,7 @@ class raw_notebook(notebook):
     def __init__(self, content):
         self.content = content
         self.frontmatter = frontmatter.loads(content)
-    def dump(self, path): frontmatter.dump(self.content, path)
+    def dump(self, path): frontmatter.dump(self.frontmatter, path)
 
 class ipynb_notebook(notebook):
     def __init__(self, content):
