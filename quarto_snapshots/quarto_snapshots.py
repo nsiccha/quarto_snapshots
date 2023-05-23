@@ -27,7 +27,7 @@ class ipynb_notebook(notebook):
         print(self.frontmatter)
     def dump(self, path):
         self.json["cells"][0]["source"] = frontmatter.dumps(self.frontmatter).split("\n")
-        json.dump(self.json, path)
+        path.write_text(json.dumps(self.json))
 
 def get_notebook(content, suffix):
     return ipynb_notebook(content) if suffix == ".ipynb" else raw_notebook(content)
