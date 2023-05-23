@@ -25,7 +25,9 @@ class ipynb_notebook(notebook):
         self.json = json.loads(content)
         self.frontmatter = frontmatter.loads("".join(self.json["cells"][0]["source"]))
     def dump(self, path):
-        self.json["cells"][0]["source"] = frontmatter.dumps(self.frontmatter).split("\n")
+        self.json["cells"][0]["source"] = re.split(
+            r"(?<=\n)", frontmatter.dumps(self.frontmatter)
+        )
         path.write_text(json.dumps(self.json))
 
 def get_notebook(content, suffix):
