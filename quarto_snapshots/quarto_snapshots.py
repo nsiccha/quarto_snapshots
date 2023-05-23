@@ -40,7 +40,7 @@ def find_and_copy_snapshots(args, path):
         (commit.tree / str(path)).data_stream.read().decode("utf-8")
         for commit in reversed(commits)
     ]
-    with open(path, "r") as fd: versions['latest'] = fd.read()
+    with open(path, "r") as fd: versions['latest'] = get_notebook(fd.read(), suffix)
     for content in contents: 
         nb = get_notebook(content, suffix)
         version = nb.get("version", "unversioned")
