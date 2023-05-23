@@ -24,6 +24,7 @@ class ipynb_notebook(notebook):
         self.content = content
         self.json = json.loads(content)
         self.frontmatter = frontmatter.loads("".join(self.json["cells"][0]["source"]))
+        print(self.frontmatter)
     def dump(self, path):
         self.json["cells"][0]["source"] = frontmatter.dumps(self.frontmatter).split("\n")
         json.dump(self.json, path)
@@ -72,8 +73,10 @@ def generate(args):
     for path in paths:
         try:
             path.relative_to(args.snapshots_dir)
+            continue
         except:
-            find_and_copy_snapshots(args, path)
+            pass
+        find_and_copy_snapshots(args, path)
 
 def get_parser():
     parser = argparse.ArgumentParser(
