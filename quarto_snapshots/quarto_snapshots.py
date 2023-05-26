@@ -39,10 +39,6 @@ def find_and_copy_snapshots(args, path):
     commits = list(args.repo.iter_commits(paths=[path]))
     versions = dict()
     with open(path, "r") as fd: versions['latest'] = get_notebook(fd.read(), suffix)
-    contents = [
-        (commit.tree / str(path)).data_stream.read().decode("utf-8")
-        for commit in reversed(commits)
-    ]
     auto_version = 0
     for commit in reversed(commits): 
         content = (commit.tree / str(path)).data_stream.read().decode("utf-8")
@@ -62,7 +58,10 @@ def find_and_copy_snapshots(args, path):
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"Generating {snapshot_path}...")
         modified_title = nb.get("title", path.stem)
-        if version != "latest": modified_title += f" ({version})"
+        if version == "latest":
+            nb["date"] = "today"
+        else:
+            modified_title += f" ({version})"
         if path == args.quarto_project / f"index{suffix}": 
             modified_title = "SNAPSHOTS"
             nb["order"] = 10 + nb.get("order", 0)
