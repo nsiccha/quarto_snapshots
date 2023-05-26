@@ -1,6 +1,6 @@
 """Main module."""
 import sys
-import os, argparse, pathlib, re, shlex, json
+import os, argparse, pathlib, re, shlex, json, time
 import git# comes from gitpython
 import frontmatter# comes from python-frontmatter
 
@@ -38,14 +38,20 @@ def find_and_copy_snapshots(args, path):
     suffix = path.suffix
     commits = list(args.repo.iter_commits(paths=[path]))
     versions = dict()
+    with open(path, "r") as fd: versions['latest'] = get_notebook(fd.read(), suffix)
     contents = [
         (commit.tree / str(path)).data_stream.read().decode("utf-8")
         for commit in reversed(commits)
     ]
-    with open(path, "r") as fd: versions['latest'] = get_notebook(fd.read(), suffix)
-    for content in contents: 
+    auto_version = 0
+    for commit in reversed(commits): 
+        content = (commit.tree / str(path)).data_stream.read().decode("utf-8")
         nb = get_notebook(content, suffix)
+        nb["date"] = time.strftime("%Y-%m-%d", time.gmtime(commit.committed_date))
         version = nb.get("version", "unversioned")
+        if version == "auto": 
+            version = f"0.1.{auto_version}"
+            auto_version += 1
         versions[version] = nb
     if not args.keep_unversioned: versions.pop("unversioned", None) 
     for version, nb in versions.items():
