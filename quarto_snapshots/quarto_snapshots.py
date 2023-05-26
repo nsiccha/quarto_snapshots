@@ -12,7 +12,7 @@ class notebook:
     def get(self, *args): return self.frontmatter.get(*args)
     def __getitem__(self, key): return self.frontmatter.__getitem__(key)
     def __setitem__(self, *args): return self.frontmatter.__setitem__(*args)
-    def setdefault(self, *args): return self.frontmatter.setdefault(*args)
+    def setdefault(self, key, value): self[key] = self.get(key, value)
 
 class raw_notebook(notebook):
     def __init__(self, content):
