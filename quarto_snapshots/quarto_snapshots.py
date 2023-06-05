@@ -78,7 +78,7 @@ version|title|description
         nb["title"] = modified_title
         nb.dump(snapshot_path)
     if path.stem != "index":
-        index_path = path.relative_to(args.quarto_project).with_suffix("") / "index.qmd"
+        index_path = args.snapshots_dir / path.relative_to(args.quarto_project).with_suffix("") / "index.qmd"
         index_path.write_text(index_content)
 
 def generate(args):
