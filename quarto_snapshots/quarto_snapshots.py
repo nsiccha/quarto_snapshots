@@ -39,7 +39,7 @@ def find_and_copy_snapshots(args, path):
     suffix = path.suffix
     commits = list(args.repo.iter_commits(paths=[path]))
     versions = dict()
-    with open(path, "r") as fd: versions['latest'] = get_notebook(fd.read(), suffix)
+    # with open(path, "r") as fd: versions['latest'] = get_notebook(fd.read(), suffix)
     auto_version = 0
     for commit in reversed(commits): 
         content = (commit.tree / str(path)).data_stream.read().decode("utf-8")
@@ -52,23 +52,33 @@ def find_and_copy_snapshots(args, path):
             auto_version += 1
         versions[version] = nb
     if not args.keep_unversioned: versions.pop("unversioned", None) 
+    index_content = f"""
+---
+title: {path}
+date: today
+---
+
+version|title|description
+-|--|---
+"""
     for version, nb in versions.items():
-        stem = "index" if version == "latest" else f"{path.stem}_{version}"
+        # stem = "index" if version == "latest" else f"{path.stem}_{version}"
+        stem = f"{path.stem}_{version}"
         rel_path = path.relative_to(args.quarto_project).with_suffix("")
         if path.stem == "index": rel_path = rel_path.parent
         snapshot_path = args.snapshots_dir / rel_path / f"{stem}{suffix}"
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"Generating {snapshot_path}...")
         modified_title = nb.get("title", path.stem)
-        if version == "latest":
-            nb["date"] = "today"
-        else:
-            modified_title += f" ({version})"
+        index_content += f"\n{version}|{nb.get('title')}|{nb.get('description')}"
+        modified_title += f" ({version})"
         if path == args.quarto_project / f"index{suffix}": 
             modified_title = "SNAPSHOTS"
             nb["order"] = 10 + nb.get("order", 0)
         nb["title"] = modified_title
         nb.dump(snapshot_path)
+    index_path = path.relative_to(args.quarto_project).with_suffix("") / "index.qmd"
+    index_path.write_text(index_content)
 
 def generate(args):
     args.repo = git.Repo(args.git_root)
