@@ -52,8 +52,7 @@ def find_and_copy_snapshots(args, path):
             auto_version += 1
         versions[version] = nb
     if not args.keep_unversioned: versions.pop("unversioned", None) 
-    index_content = f"""
----
+    index_content = f"""---
 title: {path}
 date: today
 ---
