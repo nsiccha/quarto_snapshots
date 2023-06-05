@@ -59,15 +59,15 @@ date: today
 ---
 
 version|title|description
--|--|---
-"""
+-|--|---"""
+    snapshot_base = args.snapshots_dir / path.relative_to(args.quarto_project).with_suffix("")
+    if path.stem == "index": snapshot_base = snapshot_base.parent
+    snapshot_base.mkdir(parents=True, exist_ok=True)
     for version, nb in versions.items():
         # stem = "index" if version == "latest" else f"{path.stem}_{version}"
         stem = f"{path.stem}_{version}"
-        rel_path = path.relative_to(args.quarto_project).with_suffix("")
-        if path.stem == "index": rel_path = rel_path.parent
-        snapshot_path = args.snapshots_dir / rel_path / f"{stem}{suffix}"
-        snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+        # rel_path = path.relative_to(args.quarto_project).with_suffix("")
+        snapshot_path = snapshot_base / f"{stem}{suffix}"
         print(f"Generating {snapshot_path}...")
         modified_title = nb.get("title", path.stem)
         index_content += f"\n{version}|{nb.get('title')}|{nb.get('description')}"
@@ -78,7 +78,8 @@ version|title|description
         nb["title"] = modified_title
         nb.dump(snapshot_path)
     if path.stem != "index":
-        index_path = args.snapshots_dir / path.relative_to(args.quarto_project).with_suffix("") / "index.qmd"
+        index_path = snapshot_base / "index.qmd"
+        print(f"Generating {index_path}...")
         index_path.write_text(index_content)
 
 def generate(args):
