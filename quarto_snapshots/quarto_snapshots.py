@@ -35,6 +35,7 @@ def get_notebook(content, suffix):
     return ipynb_notebook(content) if suffix == ".ipynb" else raw_notebook(content)
 
 def find_and_copy_snapshots(args, path):
+    print(f"Looking at {path}...")
     # https://stackoverflow.com/questions/28803626/get-all-revisions-for-a-specific-file-in-gitpython
     suffix = path.suffix
     commits = list(args.repo.iter_commits(paths=[path]))
@@ -54,6 +55,7 @@ def find_and_copy_snapshots(args, path):
         versions[version] = nb
         nbs += [nb]
     if not args.keep_unversioned: versions.pop("unversioned", None) 
+    if not versions: return
     index_content = f"""---
 title: {path.name}
 date: {nbs[-1]["date"]}
