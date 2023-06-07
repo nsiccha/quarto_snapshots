@@ -71,7 +71,7 @@ version|title|description
         snapshot_path = snapshot_base / f"{stem}{suffix}"
         print(f"Generating {snapshot_path}...")
         modified_title = nb.get("title", path.stem)
-        def make_link(x): f"[{x}]({snapshot_path.name})" 
+        def make_link(x): return f"[{x}]({snapshot_path.name})" 
         index_content += "\n" + "|".join(map(make_link, [
             version, nb.get("title", path.stem), nb.get("description", "No description")
         ]))
