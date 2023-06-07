@@ -82,10 +82,9 @@ version|title|description
             nb["order"] = 10 + nb.get("order", 0)
         nb["title"] = modified_title
         nb.dump(snapshot_path)
-    if path.stem != "index":
-        index_path = snapshot_base / "index.qmd"
-        print(f"Generating {index_path}...")
-        index_path.write_text(index_content)
+    index_path = snapshot_base / "index.qmd"
+    print(f"Generating {index_path}...")
+    index_path.write_text(index_content)
 
 def generate(args):
     args.repo = git.Repo(args.git_root)
