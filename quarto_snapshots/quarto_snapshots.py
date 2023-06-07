@@ -41,6 +41,7 @@ def find_and_copy_snapshots(args, path):
     versions = dict()
     # with open(path, "r") as fd: versions['latest'] = get_notebook(fd.read(), suffix)
     auto_version = 0
+    nbs = []
     for commit in reversed(commits): 
         content = (commit.tree / str(path)).data_stream.read().decode("utf-8")
         nb = get_notebook(content, suffix)
@@ -51,10 +52,11 @@ def find_and_copy_snapshots(args, path):
             version = f"0.1.{auto_version}"
             auto_version += 1
         versions[version] = nb
+        nbs += [nb]
     if not args.keep_unversioned: versions.pop("unversioned", None) 
     index_content = f"""---
-title: {path}
-date: today
+title: {path.name}
+date: {nbs[-1]["date"]}
 ---
 
 version|title|description
@@ -62,14 +64,17 @@ version|title|description
     snapshot_base = args.snapshots_dir / path.relative_to(args.quarto_project).with_suffix("")
     if path.stem == "index": snapshot_base = snapshot_base.parent
     snapshot_base.mkdir(parents=True, exist_ok=True)
-    for version, nb in versions.items():
+    for version, nb in reversed(versions.items()):
         # stem = "index" if version == "latest" else f"{path.stem}_{version}"
         stem = f"{path.stem}_{version}"
         # rel_path = path.relative_to(args.quarto_project).with_suffix("")
         snapshot_path = snapshot_base / f"{stem}{suffix}"
         print(f"Generating {snapshot_path}...")
         modified_title = nb.get("title", path.stem)
-        index_content += f"\n{version}|{nb.get('title')}|{nb.get('description')}"
+        def make_link(x): f"[{x}]({snapshot_path.name})" 
+        index_content += "\n" + "|".join(map(make_link, [
+            version, nb.get("title", path.stem), nb.get("description", "No description")
+        ]))
         modified_title += f" ({version})"
         if path == args.quarto_project / f"index{suffix}": 
             modified_title = "SNAPSHOTS"
