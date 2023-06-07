@@ -56,15 +56,21 @@ def find_and_copy_snapshots(args, path):
         nbs += [nb]
     if not args.keep_unversioned: versions.pop("unversioned", None) 
     if not versions: return
+
+    snapshot_base = args.snapshots_dir / path.relative_to(args.quarto_project).with_suffix("")
+    index_title = path.name
+    index_date = nbs[-1]["date"]
+    if path.stem == "index": 
+        snapshot_base = snapshot_base.parent
+        index_title = snapshot_base.name 
+
     index_content = f"""---
-title: {path.name}
-date: {nbs[-1]["date"]}
+title: {index_title}
+date: {index_date}
 ---
 
 version|title|description
 -|--|---"""
-    snapshot_base = args.snapshots_dir / path.relative_to(args.quarto_project).with_suffix("")
-    if path.stem == "index": snapshot_base = snapshot_base.parent
     snapshot_base.mkdir(parents=True, exist_ok=True)
     for version, nb in reversed(versions.items()):
         # stem = "index" if version == "latest" else f"{path.stem}_{version}"
