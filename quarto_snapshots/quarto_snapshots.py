@@ -55,7 +55,7 @@ def find_and_copy_snapshots(args, path):
         versions[version] = nb
         nbs += [nb]
     if not args.keep_unversioned: versions.pop("unversioned", None) 
-    if not versions: return
+    if not versions: return ""
 
     snapshot_base = args.snapshots_dir / path.relative_to(args.quarto_project).with_suffix("")
     index_title = path.name
@@ -63,13 +63,14 @@ def find_and_copy_snapshots(args, path):
     if path.stem == "index": 
         snapshot_base = snapshot_base.parent
         index_title = snapshot_base.name 
+        # if snapshot_base == snapshot_base:
+        #     index_title = "SNAPSHOTS"
 
-    index_content = f"""---
+    index_header = f"""---
 title: {index_title}
 date: {index_date}
----
-
-version|title|description
+---"""
+    index_body = """version|title|description
 -|--|---"""
     snapshot_base.mkdir(parents=True, exist_ok=True)
     for version, nb in reversed(versions.items()):
@@ -79,9 +80,9 @@ version|title|description
         snapshot_path = snapshot_base / f"{stem}{suffix}"
         print(f"Generating {snapshot_path}...")
         modified_title = nb.get("title", path.stem)
-        link = snapshot_path.with_suffix(".html").name
+        link = snapshot_path.with_suffix(".html").relative_to(args.quarto_project)
         def make_link(x): return f"[{x}]({link})" 
-        index_content += "\n" + "|".join(map(make_link, [
+        index_body += "\n" + "|".join(map(make_link, [
             version, nb.get("title", path.stem), nb.get("description", "No description")
         ]))
         modified_title += f" ({version})"
@@ -92,7 +93,9 @@ version|title|description
         nb.dump(snapshot_path)
     index_path = snapshot_base / "index.qmd"
     print(f"Generating {index_path}...")
-    index_path.write_text(index_content)
+    index_path.write_text(index_header + "\n\n" + index_body)
+
+    return f"""# [{path}]({index_path.relative_to(args.quarto_project)}) """ + "\n\n" + index_body
 
 def generate(args):
     args.repo = git.Repo(args.git_root)
@@ -102,13 +105,19 @@ def generate(args):
         list(args.quarto_project.rglob(f"*.*{ext}")) 
         for ext in ["md", "qmd", "ipynb"] 
     ], [])
+    index_content = """---
+title: SNAPSHOTS
+---"""
     for path in paths:
         try:
             path.relative_to(args.snapshots_dir)
             continue
         except:
             pass
-        find_and_copy_snapshots(args, path)
+        index_content += "\n\n" + find_and_copy_snapshots(args, path)
+    index_path = args.snapshots_dir / "index.qmd"
+    print(f"Generating {index_path}...")
+    index_path.write_text(index_content)
 
 def get_parser():
     parser = argparse.ArgumentParser(
