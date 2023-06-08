@@ -81,7 +81,7 @@ date: {index_date}
         print(f"Generating {snapshot_path}...")
         modified_title = nb.get("title", path.stem)
         link = snapshot_path.with_suffix(".html").relative_to(args.quarto_project)
-        def make_link(x): return f"[{x}]({link})" 
+        def make_link(x): return f"[{x}](/{link})" 
         index_body += "\n" + "|".join(map(make_link, [
             version, nb.get("title", path.stem), nb.get("description", "No description")
         ]))
@@ -95,7 +95,7 @@ date: {index_date}
     print(f"Generating {index_path}...")
     index_path.write_text(index_header + "\n\n" + index_body)
 
-    return f"""# [{path}]({index_path.relative_to(args.quarto_project)}) """ + "\n\n" + index_body
+    return f"""# [{path}](/{index_path.relative_to(args.quarto_project)}) """ + "\n\n" + index_body
 
 def generate(args):
     args.repo = git.Repo(args.git_root)
