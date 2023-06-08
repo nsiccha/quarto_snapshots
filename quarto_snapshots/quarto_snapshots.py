@@ -4,6 +4,7 @@ import os, argparse, pathlib, re, shlex, json, time
 import git# comes from gitpython
 import frontmatter# comes from python-frontmatter
 
+def mtime(path): return os.path.getmtime(path)
 def print_and_system(cmd):
     print(cmd)
     os.system(cmd)
@@ -70,7 +71,7 @@ def find_and_copy_snapshots(args, path):
 title: {index_title}
 date: {index_date}
 ---"""
-    index_body = """version|title|description
+    index_body = """version|title|description or date
 -|--|---"""
     snapshot_base.mkdir(parents=True, exist_ok=True)
     for version, nb in reversed(versions.items()):
@@ -83,12 +84,12 @@ date: {index_date}
         link = snapshot_path.with_suffix(".html").relative_to(args.quarto_project)
         def make_link(x): return f"[{x}](/{link})" 
         index_body += "\n" + "|".join(map(make_link, [
-            version, nb.get("title", path.stem), nb.get("description", "No description")
+            version, nb.get("title", path.stem), nb.get("description", nb["date"])
         ]))
         modified_title += f" ({version})"
-        if path == args.quarto_project / f"index{suffix}": 
-            modified_title = "SNAPSHOTS"
-            nb["order"] = 10 + nb.get("order", 0)
+        # if path == args.quarto_project / f"index{suffix}": 
+        #     modified_title = "SNAPSHOTS"
+        #     nb["order"] = 10 + nb.get("order", 0)
         nb["title"] = modified_title
         nb.dump(snapshot_path)
     index_path = snapshot_base / "index.qmd"
@@ -101,10 +102,10 @@ def generate(args):
     args.repo = git.Repo(args.git_root)
     args.quarto_project = pathlib.Path(args.quarto_project)
     args.snapshots_dir = args.quarto_project / args.snapshots_subdir
-    paths = sum([
-        list(args.quarto_project.rglob(f"*.*{ext}")) 
+    paths = sorted(sum([
+        list(args.quarto_project.rglob(f"*.{ext}")) 
         for ext in ["md", "qmd", "ipynb"] 
-    ], [])
+    ], []), key=mtime, reverse=True)
     index_content = """---
 title: SNAPSHOTS
 ---"""
