@@ -45,7 +45,11 @@ def find_and_copy_snapshots(args, path):
     auto_version = 0
     nbs = []
     for commit in reversed(commits): 
-        content = (commit.tree / str(path)).data_stream.read().decode("utf-8")
+        try:
+            content = (commit.tree / str(path)).data_stream.read().decode("utf-8")
+        except KeyError as err:
+            print("There was some error: ", err)
+            continue
         nb = get_notebook(content, suffix)
         nb["date"] = time.strftime("%Y-%m-%d", time.gmtime(commit.committed_date))
         nb.setdefault("author", commit.author.name)
