@@ -142,7 +142,9 @@ def get_parser():
     return parser
 
 
-def handle_args(args):
+def handle_args(args, **kwargs):
+    for key, value in kwargs.items():
+        setattr(args, key, value)
     print(args)
 
     if args.initialize_julia:
@@ -158,4 +160,4 @@ def handle_args(args):
     if args.publish: print_and_system(f"quarto publish gh-pages {shlex.quote(args.quarto_project)} --no-prompt --no-browser")
     return 0
 
-def main(): return handle_args(get_parser().parse_args())
+def main(**kwargs): return handle_args(get_parser().parse_args(), **kwargs)
