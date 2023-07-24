@@ -135,7 +135,6 @@ def get_parser():
     parser.add_argument('-g', '--generate', default=False, action='store_true')
     parser.add_argument('-r', '--render', default=False, action='store_true')
     parser.add_argument('-p', '--publish', default=False, action='store_true')
-    parser.add_argument('-w', '--hello-world', default=False, action='store_true')
     parser.add_argument('--git-root', default=".")
     parser.add_argument('-q', '--quarto-project', default="quarto")
     parser.add_argument('-s', '--snapshots-subdir', default="snapshots")
@@ -155,9 +154,8 @@ def handle_args(args):
         print_and_system(f"git commit -m {shlex.quote(args.commit_message)}")
         print_and_system("git push")
     if args.generate: generate(args)
-    if args.render: print_and_system("quarto render quarto")
-    if args.publish: print_and_system("quarto publish gh-pages quarto --no-prompt --no-browser")
-    if args.hello_world: print("Hello quarto!")
+    if args.render: print_and_system(f"quarto render {shlex.quote(args.quarto_project)}")
+    if args.publish: print_and_system(f"quarto publish gh-pages {shlex.quote(args.quarto_project)} --no-prompt --no-browser")
     return 0
 
 def main(): return handle_args(get_parser().parse_args())
