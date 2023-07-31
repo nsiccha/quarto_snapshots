@@ -56,7 +56,7 @@ def find_and_copy_snapshots(args, path):
                 auto_version += 1
             versions[version] = nb
             nbs += [nb]
-        except KeyError as err:
+        except Exception as err:
             print("There was some error: ", err)
             continue
     if not args.keep_unversioned: versions.pop("unversioned", None) 
