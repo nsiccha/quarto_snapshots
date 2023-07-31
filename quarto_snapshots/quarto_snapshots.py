@@ -47,18 +47,18 @@ def find_and_copy_snapshots(args, path):
     for commit in reversed(commits): 
         try:
             content = (commit.tree / str(path)).data_stream.read().decode("utf-8")
+            nb = get_notebook(content, suffix)
+            nb["date"] = time.strftime("%Y-%m-%d", time.gmtime(commit.committed_date))
+            nb.setdefault("author", commit.author.name)
+            version = nb.get("version", "unversioned")
+            if version == "auto": 
+                version = f"0.1.{auto_version}"
+                auto_version += 1
+            versions[version] = nb
+            nbs += [nb]
         except KeyError as err:
             print("There was some error: ", err)
             continue
-        nb = get_notebook(content, suffix)
-        nb["date"] = time.strftime("%Y-%m-%d", time.gmtime(commit.committed_date))
-        nb.setdefault("author", commit.author.name)
-        version = nb.get("version", "unversioned")
-        if version == "auto": 
-            version = f"0.1.{auto_version}"
-            auto_version += 1
-        versions[version] = nb
-        nbs += [nb]
     if not args.keep_unversioned: versions.pop("unversioned", None) 
     if not versions: return ""
 
