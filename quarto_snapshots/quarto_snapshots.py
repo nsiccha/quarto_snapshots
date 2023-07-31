@@ -156,6 +156,7 @@ def handle_args(args, **kwargs):
         print_and_system(f"git commit -m {shlex.quote(args.commit_message)}")
         print_and_system("git push")
     if args.generate: generate(args)
+    args.quarto_project = str(args.quarto_project)
     if args.render: print_and_system(f"quarto render {shlex.quote(args.quarto_project)}")
     if args.publish: print_and_system(f"quarto publish gh-pages {shlex.quote(args.quarto_project)} --no-prompt --no-browser")
     return 0
